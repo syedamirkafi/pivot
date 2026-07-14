@@ -1332,18 +1332,17 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
             
             <div className="p-6 overflow-y-auto font-sans text-sm leading-relaxed text-neutral-300 whitespace-pre-wrap flex-1 bg-[#131316]">
               {resumes.find(r => r.id === selectedResumeId)?.content || `[Profile Text Content]
-Name: Syed Amir Kafi
-Email: SyedAmirKafi@gmail.com
+Name: [Your Full Name]
+Email: [your.email@example.com]
 Status: Active Match Profile
 
 EXPERIENCE:
-- Business process optimizer
-- Requirements engineer and process architecture lead
-- High-level metric visualization using Microsoft Excel and Power BI dashboards
-- Experience working closely with key stakeholders to identify requirements
+- [Your experience 1]
+- [Your experience 2]
+- [Your experience 3]
 
 SKILLS:
-- Business Analysis, Requirements Gathering, Data Analysis, Microsoft Excel, Power BI, Process Mapping, SQL, Python, Agile Methodologies, Stakeholder Management`}
+- [Skill 1], [Skill 2], [Skill 3], [Skill 4], [Skill 5]`}
             </div>
             
             <div className="p-4 border-t border-white/5 flex justify-end bg-[#161619]/20">

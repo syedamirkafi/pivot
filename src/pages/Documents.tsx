@@ -84,7 +84,7 @@ const SEED_DOCUMENTS = [
     fileType: 'PDF',
     tags: ['CV', 'Resume'],
     updatedAtString: 'May 24, 2025\n08:10 PM',
-    content: `##  [REDACTED]- Data Scientist CV\n\n## Summary\nIMIS student focused on data visualization, machine learning models, and complex statistical analysis. Experienced in extracting business insights from large-scale sales databases.\n\n## Tech Stack\n• Tools: Power BI, Advanced Excel, Jupyter Notebooks\n• Languages: Python (Pandas, NumPy, Scikit-Learn), R, SQL\n• Concepts: Linear Regression, Clustering, Pivot Reporting`
+    content: `## [Your Name] - Data Scientist CV\n\n## Summary\n[Your field] student focused on data visualization, machine learning models, and complex statistical analysis. Experienced in extracting business insights from large-scale databases.\n\n## Tech Stack\n• Tools: Power BI, Advanced Excel, Jupyter Notebooks\n• Languages: Python (Pandas, NumPy, Scikit-Learn), R, SQL\n• Concepts: Linear Regression, Clustering, Pivot Reporting`
   },
   {
     name: 'Cover Letter Template.docx',
@@ -93,7 +93,7 @@ const SEED_DOCUMENTS = [
     fileType: 'DOCX',
     tags: ['Cover Letter'],
     updatedAtString: 'May 22, 2025\n09:00 AM',
-    content: `## Cover Letter Template\n\nTo Whom It May Concern,\n\nI am writing to express my strong interest in the IT and Digital Strategy position. As a Master's student in International Management & Information Systems at Fachhochschule Südwestfalen, I am eager to apply my skills in Power BI, data-driven planning, and executive presentation formatting.\n\nI look forward to discussing how my experience as a Territory Officer and Working Student aligns with your team's digital collaboration needs.\n\nSincerely,\nSyed Amir Kafi`
+    content: `## Cover Letter Template\n\nTo Whom It May Concern,\n\nI am writing to express my strong interest in the [Position] position. As a [Your Degree] student at [Your University], I am eager to apply my skills in [Skill 1], [Skill 2], and [Skill 3].\n\nI look forward to discussing how my experience aligns with your team's needs.\n\nSincerely,\n[Your Name]`
   },
   {
     name: 'Product Manager CV',
@@ -102,7 +102,7 @@ const SEED_DOCUMENTS = [
     fileType: 'PDF',
     tags: ['CV'],
     updatedAtString: 'May 20, 2025\n06:40 PM',
-    content: `##  [REDACTED]- Product Manager CV\n\n## Summary\nAgile product professional specializing in feature roadmap formulation, stakeholder communication, and business intelligence reporting. Dedicated to maximizing user experience of digital collaboration platforms.\n\n## Core Competencies\n• Methodology: Agile, Scrum, Kanban\n• Analytics: Power BI, Excel Pivot Tables, SQL Querying\n• Communication: Executive PowerPoint reporting`
+    content: `## [Your Name] - Product Manager CV\n\n## Summary\nAgile product professional specializing in feature roadmap formulation, stakeholder communication, and business intelligence reporting. Dedicated to maximizing user experience of digital platforms.\n\n## Core Competencies\n• Methodology: Agile, Scrum, Kanban\n• Analytics: Power BI, Excel Pivot Tables, SQL Querying\n• Communication: Executive PowerPoint reporting`
   },
   {
     name: 'Old Resume.docx',
@@ -111,7 +111,7 @@ const SEED_DOCUMENTS = [
     fileType: 'DOCX',
     tags: ['Backup'],
     updatedAtString: 'May 18, 2025\n03:30 PM',
-    content: `## Archive - Old Resume (2022 Backup)\n\n## Education\nBachelor of Business Administration in Management Studies\nUniversity of Rajshahi, Bangladesh\nJan 2017 - Sep 2022\n\n## Early Internships\nDhaka Bank Ltd.\n• Supported daily retail and corporate documentation.\n• Prepared spreadsheet summaries for regional managers.`
+    content: `## Archive - Old Resume\n\n## Education\n[Your Degree]\n[Your University]\n[Start Date] - [End Date]\n\n## Early Internships\n[Company Name]\n• [Task 1]\n• [Task 2]`
   }
 ];
 
