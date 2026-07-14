@@ -1,10 +1,10 @@
 {
-  "projectId": "scenic-delight-p6d0h",
-  "appId": "1:423899738179:web:b03be8d271e4d0aa51a4f6",
-  "apiKey": "AIzaSyAN_V1G3F356UicuOqlALFRcSr9N5c6nfo",
-  "authDomain": "scenic-delight-p6d0h.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-d559a9e0-5718-4e3c-8e32-235f7af5b867",
-  "storageBucket": "scenic-delight-p6d0h.firebasestorage.app",
-  "messagingSenderId": "423899738179",
+  "projectId": "YOUR_PROJECT_ID",
+  "appId": "YOUR_APP_ID",
+  "apiKey": "YOUR_API_KEY",
+  "authDomain": "YOUR_PROJECT.firebaseapp.com",
+  "firestoreDatabaseId": "YOUR_DATABASE_ID",
+  "storageBucket": "YOUR_PROJECT.firebasestorage.app",
+  "messagingSenderId": "YOUR_SENDER_ID",
   "measurementId": ""
 }
