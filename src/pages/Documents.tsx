@@ -57,7 +57,7 @@ const SEED_DOCUMENTS = [
     fileType: 'PDF',
     tags: ['CV', 'German'],
     updatedAtString: 'May 28, 2025\n10:15 PM',
-    content: `## Personal Information\nName  : Syed Amir Kafi\nLocation :  [REDACTED]60, Hamm, Germany\nEmail  : syedamirkafi@mail.com\n\n## Objective\nTo obtain the Internship Sales Enablement position at Henkel, leveraging data analysis, territorial optimization skills, and academic training in International Management & Information Systems.\n\n## Key Projects\n• Sales Performance Optimization Project: Formulated targeted sales growth campaigns resulting in 18% territory performance increase.\n• Digital Transformation Report: Analyzed CRM platforms and formulated strategic reports on enterprise software adoption.\n\n## Professional Experience\nTerritory Officer – Robi Axiata Ltd.\n• Managed sales and logistics operations.\n• Developed advanced territory planning strategies.`
+    content: `## Personal Information\nName  : [Your Full Name]\nLocation : [Your City, Country]\nEmail  : [your.email@example.com]\n\n## Objective\n[Write your career objective tailored to the specific role]\n\n## Key Projects\n• [Project 1]: [Brief description with metrics]\n• [Project 2]: [Brief description]\n\n## Professional Experience\n[Job Title] – [Company Name]\n• [Achievement 1]\n• [Achievement 2]`
   },
   {
     name: 'Resume Import.docx',
@@ -66,7 +66,7 @@ const SEED_DOCUMENTS = [
     fileType: 'DOCX',
     tags: ['Resume', 'LinkedIn'],
     updatedAtString: 'May 27, 2025\n02:45 PM',
-    content: `## LinkedIn Profile Import - Syed Amir Kafi\n\n## Profile Summary\nInternational Management & Information Systems student at Fachhochschule Südwestfalen. Strong skills in Power BI, advanced Excel, and IT operations. Experienced Territory Officer with proven track record in market management.\n\n## Experience\n• Working Student at Picnic Technologies\n• Territory Officer at Robi Axiata Ltd.\n• Academic Writer at Assignoholic Research`
+    content: `## LinkedIn Profile Import - [Your Name]\n\n## Profile Summary\n[Your field of study] student at [Your University]. Strong skills in [Skill 1], [Skill 2], and [Skill 3]. Experienced in [Your experience area].\n\n## Experience\n• [Job Title] at [Company 1]\n• [Job Title] at [Company 2]\n• [Job Title] at [Company 3]`
   },
   {
     name: 'Software Engineer CV',
@@ -75,7 +75,7 @@ const SEED_DOCUMENTS = [
     fileType: 'PDF',
     tags: ['CV'],
     updatedAtString: 'May 25, 2025\n11:20 AM',
-    content: `##  [REDACTED]- Software Engineer Profile\n\n## Summary\nPassionate tech professional specializing in full-stack web applications, JavaScript/TypeScript ecosystem, and database optimization. Skilled in building robust tools to streamline internal IT communication.\n\n## Core Technical Skills\n• Languages: TypeScript, JavaScript, Python\n• Frameworks: React, Node.js, Express\n• Databases: PostgreSQL, MongoDB, Firebase`
+    content: `## [Your Name] - Software Engineer Profile\n\n## Summary\n[Write a brief professional summary]\n\n## Core Technical Skills\n• Languages: [Language 1], [Language 2]\n• Frameworks: [Framework 1], [Framework 2]\n• Databases: [Database 1], [Database 2]`
   },
   {
     name: 'Data Scientist CV',
