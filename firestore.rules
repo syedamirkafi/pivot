@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidApplication(data) {
+      return data.company is string && data.company.size() <= 200
+          && data.role is string && data.role.size() <= 200
+          && data.status is string && (data.status == 'Draft' || data.status == 'Applied' || data.status == 'Interview' || data.status == 'Offer' || data.status == 'Rejected')
+          && data.userId == request.auth.uid;
+    }
+
+    function isValidResume(data) {
+      return data.name is string && data.name.size() <= 200
+          && data.content is string && data.content.size() <= 100000
+          && data.userId == request.auth.uid;
+    }
+
+    function isValidEvent(data) {
+      return data.title is string && data.title.size() <= 200
+          && data.date is string && data.date.size() == 10
+          && data.time is string && data.time.size() == 5
+          && data.type is string && (data.type == 'Interview' || data.type == 'Deadline' || data.type == 'Networking' || data.type == 'Preparation' || data.type == 'Other')
+          && data.userId == request.auth.uid;
+    }
+
+    match /applications/{applicationId} {
+      allow create: if isSignedIn()
+                    && isValidApplication(incoming());
+      
+      allow read, delete: if isSignedIn()
+                          && resource.data.userId == request.auth.uid;
+
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && isValidApplication(incoming())
+                    && incoming().createdAt == existing().createdAt;
+    }
+
+    match /resumes/{resumeId} {
+      allow create: if isSignedIn()
+                    && isValidResume(incoming());
+      
+      allow read, delete: if isSignedIn()
+                          && resource.data.userId == request.auth.uid;
+
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && isValidResume(incoming())
+                    && incoming().createdAt == existing().createdAt;
+    }
+
+    match /events/{eventId} {
+      allow read, create, update, delete: if isSignedIn()
+                                          && (request.resource != null ? request.resource.data.userId == request.auth.uid : resource.data.userId == request.auth.uid);
+    }
+  }
+}

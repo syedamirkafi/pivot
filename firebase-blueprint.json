@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "JobApplication": {
+      "title": "JobApplication",
+      "description": "A job application tracked by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "company": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string", "enum": ["Draft", "Applied", "Interview", "Offer", "Rejected"] },
+        "dateApplied": { "type": "string" },
+        "jobDescription": { "type": "string" },
+        "cvUrl": { "type": "string" },
+        "coverLetterUrl": { "type": "string" },
+        "matchScore": { "type": "number" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["company", "role", "status", "userId", "createdAt"]
+    },
+    "ResumeProfile": {
+      "title": "ResumeProfile",
+      "description": "A saved resume profile used for ATS scans",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "content": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "content", "userId", "createdAt"]
+    },
+    "CalendarEvent": {
+      "title": "CalendarEvent",
+      "description": "A scheduled calendar event or interview milestone",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "type": { "type": "string", "enum": ["Interview", "Deadline", "Networking", "Preparation", "Other"] },
+        "description": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "date", "time", "type", "userId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/applications/{applicationId}": {
+      "schema": "JobApplication",
+      "description": "Job applications tracked by users"
+    },
+    "/resumes/{resumeId}": {
+      "schema": "ResumeProfile",
+      "description": "Saved resumes/profiles for matching"
+    },
+    "/events/{eventId}": {
+      "schema": "CalendarEvent",
+      "description": "Calendar events and interview milestones scheduled by users"
+    }
+  }
+}
