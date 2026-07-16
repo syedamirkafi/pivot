@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { User } from '../types';
 import { db } from '../firebase';
-import { MASTER_CV_TEXT } from '../data/masterCV';
 import { collection, query, where, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from '../firebase';
 import { ResumeEditor } from '../components/ResumeEditor';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
@@ -39,81 +38,6 @@ interface DocumentItem {
   createdAt: any;
   updatedAtString?: string;
 }
-
-const SEED_DOCUMENTS = [
-  {
-    name: 'Master CV',
-    subtext: 'Comprehensive master CV',
-    category: 'Master CV',
-    fileType: 'TXT',
-    tags: ['CV', 'Resume'],
-    updatedAtString: 'May 29, 2025\n04:30 AM',
-    content: MASTER_CV_TEXT
-  },
-  {
-    name: 'Henkel – Internship Sales Enablement',
-    subtext: 'Tailored for Henkel internship role',
-    category: 'Generated CV',
-    fileType: 'PDF',
-    tags: ['CV', 'German'],
-    updatedAtString: 'May 28, 2025\n10:15 PM',
-    content: `## Personal Information\nName  : [Your Full Name]\nLocation : [Your City, Country]\nEmail  : [your.email@example.com]\n\n## Objective\n[Write your career objective tailored to the specific role]\n\n## Key Projects\n• [Project 1]: [Brief description with metrics]\n• [Project 2]: [Brief description]\n\n## Professional Experience\n[Job Title] – [Company Name]\n• [Achievement 1]\n• [Achievement 2]`
-  },
-  {
-    name: 'Resume Import.docx',
-    subtext: 'Imported from LinkedIn',
-    category: 'Imported',
-    fileType: 'DOCX',
-    tags: ['Resume', 'LinkedIn'],
-    updatedAtString: 'May 27, 2025\n02:45 PM',
-    content: `## LinkedIn Profile Import - [Your Name]\n\n## Profile Summary\n[Your field of study] student at [Your University]. Strong skills in [Skill 1], [Skill 2], and [Skill 3]. Experienced in [Your experience area].\n\n## Experience\n• [Job Title] at [Company 1]\n• [Job Title] at [Company 2]\n• [Job Title] at [Company 3]`
-  },
-  {
-    name: 'Software Engineer CV',
-    subtext: 'General software engineering CV',
-    category: 'Generated CV',
-    fileType: 'PDF',
-    tags: ['CV'],
-    updatedAtString: 'May 25, 2025\n11:20 AM',
-    content: `## [Your Name] - Software Engineer Profile\n\n## Summary\n[Write a brief professional summary]\n\n## Core Technical Skills\n• Languages: [Language 1], [Language 2]\n• Frameworks: [Framework 1], [Framework 2]\n• Databases: [Database 1], [Database 2]`
-  },
-  {
-    name: 'Data Scientist CV',
-    subtext: 'Data science and ML focused CV',
-    category: 'Generated CV',
-    fileType: 'PDF',
-    tags: ['CV', 'Resume'],
-    updatedAtString: 'May 24, 2025\n08:10 PM',
-    content: `## [Your Name] - Data Scientist CV\n\n## Summary\n[Your field] student focused on data visualization, machine learning models, and complex statistical analysis. Experienced in extracting business insights from large-scale databases.\n\n## Tech Stack\n• Tools: Power BI, Advanced Excel, Jupyter Notebooks\n• Languages: Python (Pandas, NumPy, Scikit-Learn), R, SQL\n• Concepts: Linear Regression, Clustering, Pivot Reporting`
-  },
-  {
-    name: 'Cover Letter Template.docx',
-    subtext: 'General cover letter template',
-    category: 'Template',
-    fileType: 'DOCX',
-    tags: ['Cover Letter'],
-    updatedAtString: 'May 22, 2025\n09:00 AM',
-    content: `## Cover Letter Template\n\nTo Whom It May Concern,\n\nI am writing to express my strong interest in the [Position] position. As a [Your Degree] student at [Your University], I am eager to apply my skills in [Skill 1], [Skill 2], and [Skill 3].\n\nI look forward to discussing how my experience aligns with your team's needs.\n\nSincerely,\n[Your Name]`
-  },
-  {
-    name: 'Product Manager CV',
-    subtext: 'Product management focused CV',
-    category: 'Generated CV',
-    fileType: 'PDF',
-    tags: ['CV'],
-    updatedAtString: 'May 20, 2025\n06:40 PM',
-    content: `## [Your Name] - Product Manager CV\n\n## Summary\nAgile product professional specializing in feature roadmap formulation, stakeholder communication, and business intelligence reporting. Dedicated to maximizing user experience of digital platforms.\n\n## Core Competencies\n• Methodology: Agile, Scrum, Kanban\n• Analytics: Power BI, Excel Pivot Tables, SQL Querying\n• Communication: Executive PowerPoint reporting`
-  },
-  {
-    name: 'Old Resume.docx',
-    subtext: 'Previous version backup',
-    category: 'Archive',
-    fileType: 'DOCX',
-    tags: ['Backup'],
-    updatedAtString: 'May 18, 2025\n03:30 PM',
-    content: `## Archive - Old Resume\n\n## Education\n[Your Degree]\n[Your University]\n[Start Date] - [End Date]\n\n## Early Internships\n[Company Name]\n• [Task 1]\n• [Task 2]`
-  }
-];
 
 export function Documents({ user }: { user: User }) {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -165,24 +89,7 @@ export function Documents({ user }: { user: User }) {
       const q = query(collection(db, 'resumes'), where('userId', '==', user.uid));
       const querySnapshot = await getDocs(q);
       const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DocumentItem));
-      
-      if (docs.length === 0) {
-        // Seed files for first load
-        const seededList: DocumentItem[] = [];
-        for (const seed of SEED_DOCUMENTS) {
-          const newDocRef = doc(collection(db, 'resumes'));
-          const payload = {
-            ...seed,
-            userId: user.uid,
-            createdAt: serverTimestamp()
-          };
-          await setDoc(newDocRef, payload);
-          seededList.push({ id: newDocRef.id, ...payload });
-        }
-        setDocuments(seededList);
-      } else {
-        setDocuments(docs);
-      }
+      setDocuments(docs);
     } catch (error) {
       console.error('Error loading documents:', error);
     } finally {
@@ -203,7 +110,7 @@ export function Documents({ user }: { user: User }) {
         category: 'Master CV',
         fileType: 'TXT',
         tags: ['CV', 'Resume'],
-        content: SEED_DOCUMENTS[0].content,
+        content: '',
         createdAt: serverTimestamp(),
         updatedAtString: undefined
       };
@@ -363,7 +270,7 @@ export function Documents({ user }: { user: User }) {
     // Save newly generated CV
     try {
       const parentMaster = documents.find(d => d.id === selectedMasterId) || documents.find(d => d.category === 'Master CV');
-      const contentBase = parentMaster?.content || SEED_DOCUMENTS[0].content;
+      const contentBase = parentMaster?.content || '';
       
       const newDocRef = doc(collection(db, 'resumes'));
       const payload: Omit<DocumentItem, 'id'> = {

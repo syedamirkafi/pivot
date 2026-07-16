@@ -325,37 +325,9 @@ export function Builder({ user }: { user: User }) {
           // Auto open Personal Info
           setEditingSection('Personal Info');
         } else {
-          // No documents: setup default CV in firestore immediately
-          const newDocPayload = {
-            name: 'Software Engineer CV',
-            content: JSON.stringify(defaultCVContent),
-            userId: user.uid,
-            createdAt: Date.now(),
-            template: 'single',
-            color: 'Purple',
-            font: 'Inter',
-            fontSize: 10,
-            spacing: 'Normal',
-            margins: 'Normal',
-            showIcons: true,
-            showDividers: true
-          };
-          const docRef = await addDoc(collection(db, 'resumes'), newDocPayload);
-          const defaultCVItem: CVListItem = {
-            id: docRef.id,
-            name: 'Software Engineer CV',
-            content: defaultCVContent,
-            template: 'single',
-            color: 'Purple',
-            font: 'Inter',
-            fontSize: 10,
-            spacing: 'Normal',
-            margins: 'Normal',
-            showIcons: true,
-            showDividers: true
-          };
-          setCvs([defaultCVItem]);
-          setActiveCvId(docRef.id);
+          // No documents: start empty
+          setCvs([]);
+          setActiveCvId('');
           setEditingSection('Personal Info');
         }
       } catch (err) {
