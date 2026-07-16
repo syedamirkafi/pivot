@@ -7,12 +7,6 @@ import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
 import dns from 'dns';
 import rateLimit from 'express-rate-limit';
-import { initializeApp, cert, applicationDefault } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-
-// Initialize Firebase Admin
-const firebaseApp = initializeApp();
-const auth = getAuth(firebaseApp);
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -48,25 +42,6 @@ const proxyLimiter = rateLimit({
 });
 
 app.use('/api', globalLimiter);
-
-// --- Authentication Middleware ---
-
-async function requireAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Missing or invalid authorization header' });
-  }
-
-  const idToken = authHeader.slice(7);
-  try {
-    const decoded = await auth.verifyIdToken(idToken);
-    (req as any).user = decoded;
-    next();
-  } catch (err: any) {
-    console.error('Token verification failed:', err.message);
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-}
 
 // --- SSRF Protection ---
 
@@ -172,19 +147,17 @@ async function callAIWithRetry<T>(fn: () => Promise<T>, retries = 3, delay = 100
   }
 }
 
-// Helper for Auth
+// Helper for Auth (optional - used for Google Docs export)
 function getOAuthClient(req: express.Request) {
   const token = req.headers['x-google-access-token'] as string;
-  if (!token) {
-    throw new Error('Missing X-Google-Access-Token header');
-  }
+  if (!token) return null;
   const oauth2Client = new google.auth.OAuth2();
   oauth2Client.setCredentials({ access_token: token });
   return oauth2Client;
 }
 
 // 1. Analyze CV against Job Description
-app.post('/api/analyze', requireAuth, aiEndpointLimiter, upload.single('cv'), async (req, res) => {
+app.post('/api/analyze', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const jobDescription = req.body.jobDescription;
     const cvText = req.body.cvText;
@@ -281,7 +254,7 @@ app.post('/api/analyze', requireAuth, aiEndpointLimiter, upload.single('cv'), as
 });
 
 // Extract text from an uploaded resume PDF
-app.post('/api/extract-resume-text', requireAuth, aiEndpointLimiter, upload.single('cv'), async (req, res) => {
+app.post('/api/extract-resume-text', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
@@ -318,7 +291,7 @@ app.post('/api/extract-resume-text', requireAuth, aiEndpointLimiter, upload.sing
 });
 
 // 2. Generate CV & Cover Letter in Google Docs with ATS Optimization and Dual-Pass Check
-app.post('/api/generate-docs', requireAuth, aiEndpointLimiter, upload.single('cv'), async (req, res) => {
+app.post('/api/generate-docs', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const jobDescription = req.body.jobDescription;
     const targetLanguage = req.body.language || 'English'; // English or German
@@ -464,33 +437,44 @@ app.post('/api/generate-docs', requireAuth, aiEndpointLimiter, upload.single('cv
 
     const docs = google.docs({ version: 'v1', auth: oauth2Client });
     
-    // Create CV Doc
-    const cvDocRes = await docs.documents.create({
-      requestBody: { title: `Optimized CV - ${targetLanguage}` },
-    });
-    const cvDocId = cvDocRes.data.documentId!;
-    await docs.documents.batchUpdate({
-      documentId: cvDocId,
-      requestBody: {
-        requests: [{ insertText: { location: { index: 1 }, text: generatedCV } }],
-      },
-    });
+    // Create CV Doc (only if authenticated)
+    let cvUrl = null;
+    let coverLetterUrl = null;
+    
+    if (oauth2Client) {
+      try {
+        const cvDocRes = await docs.documents.create({
+          requestBody: { title: `Optimized CV - ${targetLanguage}` },
+        });
+        const cvDocId = cvDocRes.data.documentId!;
+        await docs.documents.batchUpdate({
+          documentId: cvDocId,
+          requestBody: {
+            requests: [{ insertText: { location: { index: 1 }, text: generatedCV } }],
+          },
+        });
+        cvUrl = `https://docs.google.com/document/d/${cvDocId}/edit`;
 
-    // Create Cover Letter Doc
-    const clDocRes = await docs.documents.create({
-      requestBody: { title: `Cover Letter - ${targetLanguage}` },
-    });
-    const clDocId = clDocRes.data.documentId!;
-    await docs.documents.batchUpdate({
-      documentId: clDocId,
-      requestBody: {
-        requests: [{ insertText: { location: { index: 1 }, text: generatedCL } }],
-      },
-    });
+        // Create Cover Letter Doc
+        const clDocRes = await docs.documents.create({
+          requestBody: { title: `Cover Letter - ${targetLanguage}` },
+        });
+        const clDocId = clDocRes.data.documentId!;
+        await docs.documents.batchUpdate({
+          documentId: clDocId,
+          requestBody: {
+            requests: [{ insertText: { location: { index: 1 }, text: generatedCL } }],
+          },
+        });
+        coverLetterUrl = `https://docs.google.com/document/d/${clDocId}/edit`;
+      } catch (e) {
+        console.error('Failed to create Google Docs:', e);
+      }
+    }
 
     res.json({
-      cvUrl: `https://docs.google.com/document/d/${cvDocId}/edit`,
-      coverLetterUrl: `https://docs.google.com/document/d/${clDocId}/edit`,
+      cvUrl,
+      coverLetterUrl,
       cvText: generatedCV,
       clText: generatedCL,
       improvedAnalysis
@@ -503,7 +487,7 @@ app.post('/api/generate-docs', requireAuth, aiEndpointLimiter, upload.single('cv
 });
 
 // 3. Extract Job Details from URL
-app.post('/api/extract-job-details', requireAuth, aiEndpointLimiter, async (req, res) => {
+app.post('/api/extract-job-details', aiEndpointLimiter, async (req, res) => {
   try {
     const { url } = req.body;
     if (!url) {
@@ -576,7 +560,7 @@ app.post('/api/extract-job-details', requireAuth, aiEndpointLimiter, async (req,
 });
 
 // 4. Generate CV Text Only
-app.post('/api/generate-cv-text', requireAuth, aiEndpointLimiter, async (req, res) => {
+app.post('/api/generate-cv-text', aiEndpointLimiter, async (req, res) => {
   try {
     const { jobDescription, cvText, language = 'English' } = req.body;
     if (!jobDescription || !cvText) {
@@ -617,7 +601,7 @@ app.post('/api/generate-cv-text', requireAuth, aiEndpointLimiter, async (req, re
 });
 
 // 5. Generate Cover Letter Text Only
-app.post('/api/generate-cl-text', requireAuth, aiEndpointLimiter, async (req, res) => {
+app.post('/api/generate-cl-text', aiEndpointLimiter, async (req, res) => {
   try {
     const { jobDescription, cvText, language = 'English' } = req.body;
     if (!jobDescription || !cvText) {
@@ -656,7 +640,7 @@ app.post('/api/generate-cl-text', requireAuth, aiEndpointLimiter, async (req, re
 });
 
 // Chatbot Endpoint
-app.post('/api/chat', requireAuth, aiEndpointLimiter, async (req, res) => {
+app.post('/api/chat', aiEndpointLimiter, async (req, res) => {
   try {
     const { messages } = req.body;
     if (!messages || !Array.isArray(messages)) {
@@ -687,7 +671,7 @@ app.post('/api/chat', requireAuth, aiEndpointLimiter, async (req, res) => {
 });
 
 // Proxy endpoint for the web browser to bypass iframe restrictions
-app.get('/api/proxy', requireAuth, proxyLimiter, async (req, res) => {
+app.get('/api/proxy', proxyLimiter, async (req, res) => {
   try {
     const targetUrl = req.query.url as string;
     if (!targetUrl) {

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User } from 'firebase/auth';
 import { ChatMessage } from '../types';
-import { getIdToken } from '../firebase';
 import Markdown from 'react-markdown';
 import { Send, Bot, MessageSquare, Sparkles } from 'lucide-react';
 import { cn } from '../components/Layout';
@@ -33,13 +32,9 @@ export function ChatAssistant({ user }: { user: User }) {
     setLoading(true);
 
     try {
-      const token = await getIdToken();
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMsgs })
       });
       const data = await res.json();

@@ -57,11 +57,6 @@ export const getAccessToken = async (): Promise<string | null> => {
   return cachedAccessToken;
 };
 
-export const getIdToken = async (): Promise<string | null> => {
-  if (!auth.currentUser) return null;
-  return auth.currentUser.getIdToken();
-};
-
 export const logout = async () => {
   await signOut(auth);
   cachedAccessToken = null;

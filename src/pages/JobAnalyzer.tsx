@@ -34,7 +34,7 @@ import {
   Code
 } from 'lucide-react';
 import Markdown from 'react-markdown';
-import { db, handleFirestoreError, OperationType, getIdToken } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
@@ -195,13 +195,9 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
     if (!jobLink) return;
     setExtracting(true);
     try {
-      const token = await getIdToken();
       const res = await fetch('/api/extract-job-details', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: jobLink })
       });
       const data = await res.json();
@@ -248,10 +244,8 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
     formData.append('cv', cvFile);
 
     try {
-      const token = await getIdToken();
       const res = await fetch('/api/extract-resume-text', {
         method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData
       });
       const data = await res.json();
@@ -334,10 +328,8 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
     }
 
     try {
-      const token = await getIdToken();
       const res = await fetch('/api/analyze', {
         method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
         body: formData
       });
       const data = await res.json();
@@ -422,13 +414,9 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
     }
 
     try {
-      const idToken = await getIdToken();
       const res = await fetch('/api/generate-docs', {
         method: 'POST',
-        headers: {
-          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {}),
-          ...(token ? { 'X-Google-Access-Token': token } : {})
-        },
+        headers: token ? { 'X-Google-Access-Token': token } : undefined,
         body: formData
       });
       const data = await res.json();
