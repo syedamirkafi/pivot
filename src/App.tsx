@@ -11,10 +11,10 @@ import { CalendarPage } from './pages/Calendar';
 import { Builder } from './pages/Builder';
 import { Browser } from './pages/Browser';
 import { FocusPlayer } from './pages/FocusPlayer';
+import { User } from './types';
 
 export default function App() {
-  const dummyUser = { uid: 'local-user', displayName: 'Local User' } as any;
-  const dummyToken = '';
+  const dummyUser: User = { uid: 'local-user', displayName: 'Local User', photoURL: null };
 
   return (
     <BrowserRouter>
@@ -22,7 +22,7 @@ export default function App() {
         <Route path="/" element={<Layout user={dummyUser} />}>
           <Route index element={<Dashboard user={dummyUser} />} />
           <Route path="browser" element={<Browser />} />
-          <Route path="analyzer" element={<JobAnalyzer user={dummyUser} token={dummyToken} />} />
+          <Route path="analyzer" element={<JobAnalyzer user={dummyUser} token="" />} />
           <Route path="tracker" element={<JobTracker user={dummyUser} />} />
           <Route path="assistant" element={<ChatAssistant user={dummyUser} />} />
           <Route path="extension" element={<ExtensionGuide />} />

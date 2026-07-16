@@ -924,6 +924,11 @@ export function Builder({ user }: { user: User }) {
               onChange={(e) => handleSelectCV(e.target.value)}
               className="bg-transparent border-none text-xs font-mono font-bold text-[#A855F7] focus:outline-none cursor-pointer pr-4 uppercase"
             >
+              {cvs.length === 0 && (
+                <option value="" className="bg-[#111113] text-gray-200">
+                  No CVs yet
+                </option>
+              )}
               {cvs.map(cv => (
                 <option key={cv.id} value={cv.id} className="bg-[#111113] text-gray-200">
                   {cv.name}

@@ -1,5 +1,8 @@
 # Pivot
 
+> [!CAUTION]
+> **This is a passion project**, built out of personal interest to explore AI-assisted job hunting tools. It is **not** a production-grade product. While it works and includes real features, it may contain bugs, incomplete edge cases, or rough edges. Please **use it at your own discretion** and do not rely on it as your sole job search tool. Contributions and feedback are welcome.
+
 **AI-powered career operations platform that automates your entire job search workflow.**
 
 Pivot combines ATS analysis, AI-generated documents, application tracking, and productivity tools into a single app — so you spend less time on admin and more time landing offers.
@@ -128,12 +131,38 @@ Create a `.env` file:
 GEMINI_API_KEY=your-api-key-here
 ```
 
-### 4. Run
+### 4. Choose your storage mode
+
+**Option A — Local Storage (default, zero setup)**
+No configuration needed. Data is stored in your browser's localStorage. Great for trying it out.
+
+**Option B — Firebase Firestore (cloud storage, cross-device sync)**
+If you want your data saved online and synced across devices:
+1. Create a free project at [Firebase Console](https://console.firebase.google.com)
+2. Enable Firestore Database
+3. Create a `firebase-applet-config.json` in the project root:
+```json
+{
+  "projectId": "your-project-id",
+  "appId": "your-app-id",
+  "apiKey": "your-api-key",
+  "authDomain": "your-project.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "your-project.firebasestorage.app",
+  "messagingSenderId": "your-sender-id",
+  "measurementId": ""
+}
+```
+4. Update `src/firebase.ts` to import from `firebase/firestore` instead of `./localDb`
+
+> **Note:** Local storage is the default. You only need Firebase if you want cloud persistence.
+
+### 5. Run
 ```bash
 npm run dev
 ```
 
-Open **http://localhost:3000** — that's it. No accounts, no Firebase, no cloud setup.
+Open **http://localhost:3000** — that's it.
 
 ---
 

@@ -114,7 +114,7 @@ export function Documents({ user }: { user: User }) {
         createdAt: serverTimestamp(),
         updatedAtString: undefined
       };
-      await setDoc(newDocRef, payload);
+      await setDoc(newDocRef, { ...payload, userId: user.uid });
       setNewCVName('My Master CV');
       setIsCreateModalOpen(false);
       await loadDocuments();
@@ -225,7 +225,7 @@ export function Documents({ user }: { user: User }) {
         content: `## Imported ${fileType} Document: ${file.name}\n\nThis document was successfully parsed on ${new Date().toLocaleDateString()}.\n\nPlaceholder parsed text content. Feel free to edit this content directly to construct your new tailored application.`,
         createdAt: serverTimestamp()
       };
-      await setDoc(newDocRef, payload);
+      await setDoc(newDocRef, { ...payload, userId: user.uid });
       setUploadFile(null);
       setUploadingState('idle');
       setIsImportModalOpen(false);
@@ -282,7 +282,7 @@ export function Documents({ user }: { user: User }) {
         content: `## Tailored for ${targetCompany} - ${targetRole}\n\n${contentBase}`,
         createdAt: serverTimestamp()
       };
-      await setDoc(newDocRef, payload);
+      await setDoc(newDocRef, { ...payload, userId: user.uid });
       
       setIsGenerating(false);
       setIsGenerateModalOpen(false);
@@ -408,7 +408,7 @@ export function Documents({ user }: { user: User }) {
           const monthsIndex = { 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5, 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11 };
           return new Date(2025, (monthsIndex as any)[monthStr] || 4, parseInt(item.updatedAtString.split(' ')[1] || '1')).getTime();
         }
-        return a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+        return item.createdAt?.seconds ? item.createdAt.seconds * 1000 : (item.createdAt ? new Date(item.createdAt).getTime() : 0);
       };
       return getMs(b) - getMs(a);
     }
