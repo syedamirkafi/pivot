@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { db, handleFirestoreError, OperationType, getIdToken } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, orderBy } from 'firebase/firestore';
 import { JobApplication, ResumeProfile } from '../types';
 import { Plus, Edit2, Trash2, RefreshCw, ExternalLink, Wand2, Download, FileSignature, Sparkles, Briefcase } from 'lucide-react';
@@ -105,10 +105,12 @@ export function JobTracker({ user }: { user: User }) {
     if (!form.jobLink) return;
     setExtracting(true);
     try {
+      const idToken = await getIdToken();
       const res = await fetch('/api/extract-job-details', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
         },
         body: JSON.stringify({ url: form.jobLink })
       });
@@ -145,9 +147,13 @@ export function JobTracker({ user }: { user: User }) {
 
     setGeneratingCvFor(app.id!);
     try {
+      const idToken = await getIdToken();
       const response = await fetch('/api/generate-cv-text', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+        },
         body: JSON.stringify({
           jobDescription: app.jobDescription,
           cvText: masterCv.content
@@ -194,9 +200,13 @@ export function JobTracker({ user }: { user: User }) {
 
     setGeneratingClFor(app.id!);
     try {
+      const idToken = await getIdToken();
       const response = await fetch('/api/generate-cl-text', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+        },
         body: JSON.stringify({
           jobDescription: app.jobDescription,
           cvText: masterCv.content
