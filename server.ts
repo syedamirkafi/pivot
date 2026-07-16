@@ -5,9 +5,11 @@ import { GoogleGenAI } from '@google/genai';
 import { google } from 'googleapis';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
+import dns from 'dns';
+import rateLimit from 'express-rate-limit';
 
 const app = express();
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 app.use(express.json());
 
@@ -18,6 +20,108 @@ app.use((req, res, next) => {
 });
 
 const upload = multer({ storage: multer.memoryStorage() });
+
+// --- Rate Limiting ---
+
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+const aiEndpointLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'AI request limit reached. Please wait a moment before trying again.' },
+});
+
+const proxyLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Proxy request limit reached. Please wait a moment.' },
+});
+
+app.use('/api', globalLimiter);
+
+// --- SSRF Protection ---
+
+const PRIVATE_IP_PATTERNS = [
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^127\./,
+  /^0\./,
+  /^169\.254\./,
+  /^::1$/,
+  /^fc00:/,
+  /^fe80:/,
+  /^ffff:127\./,
+  /^ffff:10\./,
+  /^ffff:172\./,
+  /^ffff:192\.168\./,
+];
+
+function isPrivateOrReservedIP(ip: string): boolean {
+  return PRIVATE_IP_PATTERNS.some(pattern => pattern.test(ip));
+}
+
+function isAllowedExtractHost(hostname: string): boolean {
+  const allowed = [
+    'linkedin.com', 'www.linkedin.com',
+    'indeed.com', 'www.indeed.com',
+    'glassdoor.com', 'www.glassdoor.com',
+    'stepstone.de', 'www.stepstone.de',
+    'xing.com', 'www.xing.com',
+    'google.com', 'www.google.com',
+  ];
+  return allowed.includes(hostname.toLowerCase());
+}
+
+async function validateUrlForFetch(urlString: string, allowListCheck?: (hostname: string) => boolean): Promise<void> {
+  let parsed: URL;
+  try {
+    parsed = new URL(urlString);
+  } catch {
+    throw new Error('Invalid URL format');
+  }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('Only HTTPS URLs are allowed');
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  if (allowListCheck && !allowListCheck(hostname)) {
+    throw new Error(`Hostname "${hostname}" is not on the allowed list`);
+  }
+
+  // DNS resolution to catch DNS rebinding
+  const addresses = await new Promise<string[]>((resolve, reject) => {
+    dns.resolve4(hostname, (err, addrs) => {
+      if (err) {
+        // Try resolve6 as fallback
+        dns.resolve6(hostname, (err6, addrs6) => {
+          if (err6) reject(new Error(`DNS resolution failed for "${hostname}"`));
+          else resolve(addrs6);
+        });
+      } else {
+        resolve(addrs);
+      }
+    });
+  });
+
+  for (const addr of addresses) {
+    if (isPrivateOrReservedIP(addr)) {
+      throw new Error(`URL resolves to a private/reserved IP address: ${addr}`);
+    }
+  }
+}
 
 // Helper to get Gemini client
 function getGenAI() {
@@ -62,7 +166,7 @@ function getOAuthClient(req: express.Request) {
 }
 
 // 1. Analyze CV against Job Description
-app.post('/api/analyze', upload.single('cv'), async (req, res) => {
+app.post('/api/analyze', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const jobDescription = req.body.jobDescription;
     const cvText = req.body.cvText;
@@ -159,7 +263,7 @@ app.post('/api/analyze', upload.single('cv'), async (req, res) => {
 });
 
 // Extract text from an uploaded resume PDF
-app.post('/api/extract-resume-text', upload.single('cv'), async (req, res) => {
+app.post('/api/extract-resume-text', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
@@ -196,7 +300,7 @@ app.post('/api/extract-resume-text', upload.single('cv'), async (req, res) => {
 });
 
 // 2. Generate CV & Cover Letter in Google Docs with ATS Optimization and Dual-Pass Check
-app.post('/api/generate-docs', upload.single('cv'), async (req, res) => {
+app.post('/api/generate-docs', aiEndpointLimiter, upload.single('cv'), async (req, res) => {
   try {
     const jobDescription = req.body.jobDescription;
     const targetLanguage = req.body.language || 'English'; // English or German
@@ -381,11 +485,18 @@ app.post('/api/generate-docs', upload.single('cv'), async (req, res) => {
 });
 
 // 3. Extract Job Details from URL
-app.post('/api/extract-job-details', async (req, res) => {
+app.post('/api/extract-job-details', aiEndpointLimiter, async (req, res) => {
   try {
     const { url } = req.body;
     if (!url) {
       return res.status(400).json({ error: 'Missing url parameter' });
+    }
+
+    // SSRF protection: validate URL before fetching
+    try {
+      await validateUrlForFetch(url, isAllowedExtractHost);
+    } catch (e: any) {
+      return res.status(400).json({ error: `URL rejected: ${e.message}` });
     }
 
     let webpageText = '';
@@ -447,7 +558,7 @@ app.post('/api/extract-job-details', async (req, res) => {
 });
 
 // 4. Generate CV Text Only
-app.post('/api/generate-cv-text', async (req, res) => {
+app.post('/api/generate-cv-text', aiEndpointLimiter, async (req, res) => {
   try {
     const { jobDescription, cvText, language = 'English' } = req.body;
     if (!jobDescription || !cvText) {
@@ -488,7 +599,7 @@ app.post('/api/generate-cv-text', async (req, res) => {
 });
 
 // 5. Generate Cover Letter Text Only
-app.post('/api/generate-cl-text', async (req, res) => {
+app.post('/api/generate-cl-text', aiEndpointLimiter, async (req, res) => {
   try {
     const { jobDescription, cvText, language = 'English' } = req.body;
     if (!jobDescription || !cvText) {
@@ -527,7 +638,7 @@ app.post('/api/generate-cl-text', async (req, res) => {
 });
 
 // Chatbot Endpoint
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', aiEndpointLimiter, async (req, res) => {
   try {
     const { messages } = req.body;
     if (!messages || !Array.isArray(messages)) {
@@ -558,17 +669,18 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // Proxy endpoint for the web browser to bypass iframe restrictions
-app.get('/api/proxy', async (req, res) => {
+app.get('/api/proxy', proxyLimiter, async (req, res) => {
   try {
     const targetUrl = req.query.url as string;
     if (!targetUrl) {
       return res.status(400).send('Missing url parameter');
     }
 
+    // SSRF protection: validate URL before fetching (no hostname allowlist for browser, but block private IPs)
     try {
-      new URL(targetUrl);
-    } catch (e) {
-      return res.status(400).send('Invalid URL parameter');
+      await validateUrlForFetch(targetUrl);
+    } catch (e: any) {
+      return res.status(400).send(`URL rejected: ${e.message}`);
     }
 
     const response = await fetch(targetUrl, {
@@ -582,13 +694,14 @@ app.get('/api/proxy', async (req, res) => {
 
     const contentType = response.headers.get('content-type');
 
-    // Forward safe headers
-    response.headers.forEach((value, key) => {
-      const lowerKey = key.toLowerCase();
-      if (!['x-frame-options', 'content-security-policy', 'content-encoding', 'transfer-encoding', 'set-cookie'].includes(lowerKey)) {
+    // Forward only safe headers (allowlist instead of blocklist)
+    const SAFE_HEADERS = ['content-type', 'content-length', 'cache-control', 'etag', 'last-modified', 'expires'];
+    for (const key of SAFE_HEADERS) {
+      const value = response.headers.get(key);
+      if (value) {
         res.setHeader(key, value);
       }
-    });
+    }
 
     res.status(response.status);
 
