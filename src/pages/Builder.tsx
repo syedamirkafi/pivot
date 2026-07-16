@@ -136,8 +136,11 @@ export function Builder({ user }: { user: User }) {
   const [cvContent, setCvContent] = useState<CVContent>(defaultCVContent);
   const [cvs, setCvs] = useState<CVListItem[]>([]);
   const [activeCvId, setActiveCvId] = useState<string>('default-cv');
+  const activeCvIdRef = useRef<string>('default-cv');
   const [saveStatus, setSaveStatus] = useState<'Saved' | 'Saving' | 'Error'>('Saved');
   const [isExporting, setIsExporting] = useState(false);
+
+  useEffect(() => { activeCvIdRef.current = activeCvId; }, [activeCvId]);
 
   const exportCVAsPDF = async () => {
     if (!cvPrintAreaRef.current) return;
@@ -331,7 +334,7 @@ export function Builder({ user }: { user: User }) {
           setEditingSection('Personal Info');
         }
       } catch (err) {
-        handleFirestoreError(err, OperationType.LIST, 'resumes');
+        try { handleFirestoreError(err, OperationType.LIST, 'resumes'); } catch (e) { /* handled */ }
       }
     }
     loadDocs();
@@ -397,8 +400,9 @@ export function Builder({ user }: { user: User }) {
     const sd = customStyle?.showDividers !== undefined ? customStyle.showDividers : showDividers;
 
     try {
-      if (activeCvId && activeCvId !== 'default-cv') {
-        const docRef = doc(db, 'resumes', activeCvId);
+      const currentId = activeCvIdRef.current;
+      if (currentId && currentId !== 'default-cv') {
+        const docRef = doc(db, 'resumes', currentId);
         await updateDoc(docRef, {
           name: targetName,
           content: JSON.stringify(targetContent),
@@ -413,7 +417,7 @@ export function Builder({ user }: { user: User }) {
         });
         setSaveStatus('Saved');
         // Update local array
-        setCvs(prev => prev.map(item => item.id === activeCvId ? { 
+        setCvs(prev => prev.map(item => item.id === currentId ? { 
           ...item, 
           name: targetName, 
           content: targetContent,
@@ -443,6 +447,7 @@ export function Builder({ user }: { user: User }) {
           showDividers: sd
         });
         setActiveCvId(docRef.id);
+        activeCvIdRef.current = docRef.id;
         setCvs(prev => [...prev.filter(x => x.id !== 'default-cv'), { 
           id: docRef.id, 
           name: targetName, 
@@ -553,7 +558,7 @@ export function Builder({ user }: { user: User }) {
       setCurrentPage(1);
       setSaveStatus('Saved');
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, 'resumes');
+      try { handleFirestoreError(err, OperationType.CREATE, 'resumes'); } catch (e) { /* handled */ }
       setSaveStatus('Error');
     }
   };

@@ -60,7 +60,7 @@ export function CalendarPage({ user }: { user: User }) {
       setEvents(loadedEvents);
       setLoading(false);
     }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'events');
+      try { handleFirestoreError(error, OperationType.LIST, 'events'); } catch (e) { /* handled */ }
       setLoading(false);
     });
 
@@ -116,7 +116,7 @@ export function CalendarPage({ user }: { user: User }) {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving event:", error);
-      handleFirestoreError(error, editingEvent ? OperationType.UPDATE : OperationType.CREATE, 'events');
+      try { handleFirestoreError(error, editingEvent ? OperationType.UPDATE : OperationType.CREATE, 'events'); } catch (e) { /* handled */ }
     }
   };
 
@@ -125,7 +125,7 @@ export function CalendarPage({ user }: { user: User }) {
     try {
       await deleteDoc(doc(db, 'events', eventId));
     } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, 'events');
+      try { handleFirestoreError(error, OperationType.DELETE, 'events'); } catch (e) { /* handled */ }
     }
   };
 

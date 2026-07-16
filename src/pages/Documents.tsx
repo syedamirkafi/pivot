@@ -86,7 +86,7 @@ export function Documents({ user }: { user: User }) {
   const loadDocuments = async () => {
     try {
       setLoading(true);
-      const q = query(collection(db, 'resumes'), where('userId', '==', user.uid));
+      const q = query(collection(db, 'documents'), where('userId', '==', user.uid));
       const querySnapshot = await getDocs(q);
       const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DocumentItem));
       setDocuments(docs);
@@ -103,7 +103,7 @@ export function Documents({ user }: { user: User }) {
 
   const handleCreateMasterCV = async () => {
     try {
-      const newDocRef = doc(collection(db, 'resumes'));
+      const newDocRef = doc(collection(db, 'documents'));
       const payload: Omit<DocumentItem, 'id'> = {
         name: newCVName,
         subtext: 'Comprehensive master CV',
@@ -131,7 +131,7 @@ export function Documents({ user }: { user: User }) {
       const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
       const updatedAtString = `${dateString}\n${timeString}`;
 
-      const docRef = doc(db, 'resumes', editingDoc.id);
+      const docRef = doc(db, 'documents', editingDoc.id);
       await setDoc(docRef, {
         ...editingDoc,
         content: updatedContent,
@@ -151,7 +151,7 @@ export function Documents({ user }: { user: User }) {
   const confirmDelete = async () => {
     if (docToDelete) {
       try {
-        await deleteDoc(doc(db, 'resumes', docToDelete));
+        await deleteDoc(doc(db, 'documents', docToDelete));
         await loadDocuments();
         setDocToDelete(null);
       } catch (error) {
@@ -215,7 +215,7 @@ export function Documents({ user }: { user: User }) {
       const category = isCL ? 'Template' : 'Imported';
       const tags = isCL ? ['Cover Letter'] : ['Resume', 'Imported'];
       
-      const newDocRef = doc(collection(db, 'resumes'));
+      const newDocRef = doc(collection(db, 'documents'));
       const payload: Omit<DocumentItem, 'id'> = {
         name: file.name,
         subtext: `Imported from file upload on ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
@@ -272,7 +272,7 @@ export function Documents({ user }: { user: User }) {
       const parentMaster = documents.find(d => d.id === selectedMasterId) || documents.find(d => d.category === 'Master CV');
       const contentBase = parentMaster?.content || '';
       
-      const newDocRef = doc(collection(db, 'resumes'));
+      const newDocRef = doc(collection(db, 'documents'));
       const payload: Omit<DocumentItem, 'id'> = {
         name: `${targetCompany} – ${targetRole}`,
         subtext: `Tailored for ${targetCompany} ${targetRole} role`,

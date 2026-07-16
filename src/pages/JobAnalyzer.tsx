@@ -692,7 +692,7 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
             {/* Action Buttons */}
             <div className="pt-4 space-y-3 border-t border-white/5">
               <button
-                onClick={handleAnalyze}
+                onClick={() => handleAnalyze()}
                 disabled={!jobDescription || (selectedResumeId === 'upload' && !cvFile) || analyzing || testingAllResumes}
                 className="w-full flex justify-center items-center gap-2.5 bg-[#FF4D00] hover:bg-[#FF5C15] text-[#0C0C0E] px-4 py-3.5 rounded-md font-semibold transition-all text-sm uppercase tracking-wider disabled:opacity-40 cursor-pointer"
               >
@@ -1078,7 +1078,7 @@ export function JobAnalyzer({ user, token }: { user: User; token: string }) {
                     IMPROVEMENT SUGGESTIONS
                   </span>
                   <button 
-                    onClick={handleAnalyze}
+                    onClick={() => handleAnalyze()}
                     className="flex items-center gap-1.5 border border-neutral-800 hover:border-neutral-700 bg-neutral-900/30 hover:bg-neutral-900/60 transition-all text-neutral-300 px-3 py-1.5 rounded-md text-[0.68rem] font-medium cursor-pointer shrink-0"
                   >
                     <RefreshCw className="w-3.5 h-3.5" /> Regenerate
