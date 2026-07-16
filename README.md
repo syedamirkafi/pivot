@@ -10,13 +10,35 @@ AI-powered career operations platform that automates job application workflows �
 - **Application Tracker** — Track job applications with status management (Draft → Applied → Interview → Offer)
 - **Dashboard** — Overview of application stats and recent activity
 - **Document Management** — Store and manage generated documents
+- **CV Builder** — Create and edit resumes with live preview
+- **AI Chat Assistant** — Ask career-related questions
+- **Calendar** — Track interviews and deadlines
+
+## Screenshots
+
+### Job Analyzer
+![Job Analyzer](Job%20Analyzer.png)
+
+### Saved Jobs
+![Saved Jobs](Saved%20Jobs.png)
+
+### CV Builder
+![CV Builder](CV%20Builder.png)
+
+### Documents
+![Documents](Documnets.png)
+
+### Calendar
+![Calendar](Calendar.png)
+
+### AI Chat Assistant
+![Ask Bro](Ask%20Bro.png)
 
 ## Tech Stack
 
 - **Frontend:** React 19, TypeScript, Tailwind CSS
 - **Backend:** Express.js
 - **Database:** Firebase Firestore
-- **Authentication:** Firebase Auth (Google Sign-in)
 - **AI:** Google Gemini API
 - **PDF:** React PDF, jsPDF
 - **Build:** Vite
@@ -26,7 +48,6 @@ AI-powered career operations platform that automates job application workflows �
 ### Prerequisites
 
 - Node.js 18+
-- Firebase project (Firestore + Auth enabled)
 - Google Gemini API key
 
 ### Install
@@ -37,15 +58,11 @@ npm install
 
 ### Configure
 
-1. Copy `.env.example` to `.env.local`
-2. Add your Firebase credentials
-3. Add your Gemini API key
+1. Copy `.env.example` to `.env`
+2. Add your Gemini API key
 
 ```env
 GEMINI_API_KEY=your-api-key
-VITE_FIREBASE_API_KEY=your-firebase-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
 ```
 
 ### Run
@@ -53,6 +70,8 @@ VITE_FIREBASE_PROJECT_ID=your-project-id
 ```bash
 npm run dev
 ```
+
+Open http://localhost:3000
 
 ## License
 
