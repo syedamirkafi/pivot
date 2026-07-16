@@ -20,10 +20,10 @@ import {
   Check,
   AlertCircle
 } from 'lucide-react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { db } from '../firebase';
 import { MASTER_CV_TEXT } from '../data/masterCV';
-import { collection, query, where, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, deleteDoc, serverTimestamp } from '../firebase';
 import { ResumeEditor } from '../components/ResumeEditor';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import { ResumePDF } from '../components/ResumePDF';

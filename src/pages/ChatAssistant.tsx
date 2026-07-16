@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { ChatMessage } from '../types';
 import Markdown from 'react-markdown';
 import { Send, Bot, MessageSquare, Sparkles } from 'lucide-react';

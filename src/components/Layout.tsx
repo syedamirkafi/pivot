@@ -5,7 +5,7 @@ import { logout } from '../firebase';
 import { FocusPlayer } from '../pages/FocusPlayer';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { ClockWeatherWidget } from './ClockWeatherWidget';
 
 export function cn(...inputs: ClassValue[]) {

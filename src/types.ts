@@ -1,3 +1,9 @@
+export interface User {
+  uid: string;
+  displayName: string | null;
+  photoURL: string | null;
+}
+
 export interface JobApplication {
   id?: string;
   company: string;

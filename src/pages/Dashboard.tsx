@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from '../firebase';
 import { JobApplication } from '../types';
 import { Briefcase, CheckCircle, Clock, XCircle, Plus, FileText, PlusCircle, LayoutDashboard, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';

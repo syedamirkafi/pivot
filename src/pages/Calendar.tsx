@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek, parseISO, isAfter, isToday } from 'date-fns';
 import { ChevronLeft, ChevronRight, Trash2, Plus, Sparkles, Calendar, Clock, Tag, FileText, X, Check, Edit2, Filter, AlertCircle, CalendarRange } from 'lucide-react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, doc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from '../firebase';
 import { CalendarEvent } from '../types';
 
 export function CalendarPage({ user }: { user: User }) {

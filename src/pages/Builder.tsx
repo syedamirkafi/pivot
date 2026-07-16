@@ -34,10 +34,10 @@ import {
   PlusCircle,
   EyeOff
 } from 'lucide-react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { masterCVContent } from '../data/masterCV';
-import { db, handleFirestoreError, OperationType, googleSignIn, getAccessToken } from '../firebase';
-import { collection, query, where, getDocs, doc, addDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { collection, query, where, getDocs, doc, addDoc, updateDoc, setDoc } from '../firebase';
 
 interface CVContent {
   personalInfo: {
@@ -267,77 +267,9 @@ export function Builder({ user }: { user: User }) {
     setGoogleDocUrl(null);
     
     try {
-      let token = await getAccessToken();
-      if (!token) {
-        const signInResult = await googleSignIn();
-        if (!signInResult) {
-          throw new Error("Google Sign-In failed or was cancelled.");
-        }
-        token = signInResult.accessToken;
-      }
-      
-      // Create a blank document
-      const createRes = await fetch('https://docs.googleapis.com/v1/documents', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: cvName || 'My Professional CV'
-        })
-      });
-      
-      if (!createRes.ok) {
-        const errData = await createRes.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `Failed to create Google Doc (Status ${createRes.status})`);
-      }
-      
-      const docData = await createRes.json();
-      const documentId = docData.documentId;
-      
-      // Build plain text representation
-      const textContent = buildDocsText(cvContent);
-      
-      // Update Google Doc content
-      const updateRes = await fetch(`https://docs.googleapis.com/v1/documents/${documentId}:batchUpdate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          requests: [
-            {
-              insertText: {
-                text: textContent,
-                location: {
-                  index: 1
-                }
-              }
-            }
-          ]
-        })
-      });
-      
-      if (!updateRes.ok) {
-        const errData = await updateRes.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `Failed to update Google Doc content (Status ${updateRes.status})`);
-      }
-      
-      const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
-      setGoogleDocUrl(docUrl);
-      setGoogleDocTitle(cvName || 'My Professional CV');
-      
-      // Auto open doc in new tab
-      try {
-        window.open(docUrl, '_blank', 'noopener,noreferrer');
-      } catch (e) {
-        console.warn("Popup blocked, user can click the manual link", e);
-      }
+      throw new Error("Google Sign-In is not available in offline mode. Export to Google Docs requires authentication.");
     } catch (err: any) {
-      console.error("Failed to export to Google Docs:", err);
-      setExportError(err?.message || "An unexpected error occurred during Google Docs export.");
+      setExportError(err.message);
     } finally {
       setExportLoading(false);
     }

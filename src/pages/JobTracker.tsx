@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, orderBy } from '../firebase';
 import { JobApplication, ResumeProfile } from '../types';
 import { Plus, Edit2, Trash2, RefreshCw, ExternalLink, Wand2, Download, FileSignature, Sparkles, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';

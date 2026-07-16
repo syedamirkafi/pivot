@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User } from 'firebase/auth';
+import { User } from '../types';
 import { AnalysisResult, ResumeProfile } from '../types';
 import { 
   UploadCloud, 
@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 
 const extractKeywords = (text: string) => {
